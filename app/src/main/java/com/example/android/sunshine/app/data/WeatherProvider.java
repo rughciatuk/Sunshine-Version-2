@@ -290,27 +290,25 @@ public class WeatherProvider extends ContentProvider {
             Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
-        int updatedRows;
-        // Student: This is a lot like the delete function.  We return the number of rows impacted
-        // by the update.
+        int rowsUpdated;
 
-        switch (match){
-            case WEATHER:{
-                updatedRows = db.update(WeatherContract.WeatherEntry.TABLE_NAME, values,selection,selectionArgs);
+        switch (match) {
+            case WEATHER:
+                normalizeDate(values);
+                rowsUpdated = db.update(WeatherContract.WeatherEntry.TABLE_NAME, values, selection,
+                        selectionArgs);
                 break;
-            }
-            case LOCATION:{
-                updatedRows = db.update(WeatherContract.LocationEntry.TABLE_NAME, values,selection,selectionArgs);
+            case LOCATION:
+                rowsUpdated = db.update(WeatherContract.LocationEntry.TABLE_NAME, values, selection,
+                        selectionArgs);
                 break;
-            }
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
-
-        if(updatedRows != 0 ){
-            getContext().getContentResolver().notifyChange(uri,null);
+        if (rowsUpdated != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
         }
-        return updatedRows;
+        return rowsUpdated;
     }
 
     @Override
