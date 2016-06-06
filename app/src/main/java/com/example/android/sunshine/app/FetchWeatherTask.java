@@ -15,6 +15,7 @@
  */
 package com.example.android.sunshine.app;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -42,18 +43,13 @@ public class FetchWeatherTask extends AsyncTask<String, Void, Void> {
 
     private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
 
-
     private final Context mContext;
 
     public FetchWeatherTask(Context context) {
         mContext = context;
-
     }
 
     private boolean DEBUG = true;
-
-
-
 
     /**
      * Helper method to handle insertion of a new location in the weather database.
@@ -65,49 +61,45 @@ public class FetchWeatherTask extends AsyncTask<String, Void, Void> {
      * @return the row ID of the added location.
      */
     long addLocation(String locationSetting, String cityName, double lat, double lon) {
-        // Students: First, check if the location with this city name exists in the db
-        // If it exists, return the current ID
-        // Otherwise, insert it using the content resolver and the base URI
+        long locationId;
 
-        String[] projection = new String[]{
-                WeatherContract.LocationEntry._ID
-        };
-
-        String selection =
-                WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING + " = '" + locationSetting + "' AND " +
-                WeatherContract.LocationEntry.COLUMN_CITY_NAME + " = '" + cityName + "' AND " +
-                WeatherContract.LocationEntry.COLUMN_COORD_LAT + " = " +  lat + " AND " +
-                WeatherContract.LocationEntry.COLUMN_COORD_LONG + " = " + lon ;
-
-        Cursor checkLocation = mContext.getContentResolver().query(WeatherContract.LocationEntry.CONTENT_URI,
-                projection,
-                selection,
-                null,
+        // First, check if the location with this city name exists in the db
+        Cursor locationCursor = mContext.getContentResolver().query(
+                WeatherContract.LocationEntry.CONTENT_URI,
+                new String[]{WeatherContract.LocationEntry._ID},
+                WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING + " = ?",
+                new String[]{locationSetting},
                 null);
 
-        if(checkLocation.moveToFirst()){
-            int idColumnIndex = checkLocation.getColumnIndex(WeatherContract.LocationEntry._ID);
-            return checkLocation.getLong(idColumnIndex);
-        }else{
-            ContentValues newLocation = new ContentValues();
-            newLocation.put(WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING,locationSetting);
-            newLocation.put(WeatherContract.LocationEntry.COLUMN_CITY_NAME, cityName);
-            newLocation.put(WeatherContract.LocationEntry.COLUMN_COORD_LAT, lat);
-            newLocation.put(WeatherContract.LocationEntry.COLUMN_COORD_LONG, lon);
+        if (locationCursor.moveToFirst()) {
+            int locationIdIndex = locationCursor.getColumnIndex(WeatherContract.LocationEntry._ID);
+            locationId = locationCursor.getLong(locationIdIndex);
+        } else {
+            // Now that the content provider is set up, inserting rows of data is pretty simple.
+            // First create a ContentValues object to hold the data you want to insert.
+            ContentValues locationValues = new ContentValues();
 
-            Uri uri = mContext.getContentResolver().insert(WeatherContract.LocationEntry.CONTENT_URI,newLocation);
+            // Then add the data, along with the corresponding name of the data type,
+            // so the content provider knows what kind of value is being inserted.
+            locationValues.put(WeatherContract.LocationEntry.COLUMN_CITY_NAME, cityName);
+            locationValues.put(WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING, locationSetting);
+            locationValues.put(WeatherContract.LocationEntry.COLUMN_COORD_LAT, lat);
+            locationValues.put(WeatherContract.LocationEntry.COLUMN_COORD_LONG, lon);
 
-            return Integer.parseInt(uri.getLastPathSegment());
+            // Finally, insert location data into the database.
+            Uri insertedUri = mContext.getContentResolver().insert(
+                    WeatherContract.LocationEntry.CONTENT_URI,
+                    locationValues
+            );
 
+            // The resulting URI contains the ID for the row.  Extract the locationId from the Uri.
+            locationId = ContentUris.parseId(insertedUri);
         }
 
+        locationCursor.close();
+        // Wait, that worked?  Yes!
+        return locationId;
     }
-
-    /*
-        Students: This code will allow the FetchWeatherTask to continue to return the strings that
-        the UX expects so that we can continue to test the application even once we begin using
-        the database.
-     */
 
     /**
      * Take the String representing the complete forecast in JSON Format and
@@ -238,18 +230,16 @@ public class FetchWeatherTask extends AsyncTask<String, Void, Void> {
 
                 cVVector.add(weatherValues);
             }
-            int inserted = 0;
 
+            int inserted = 0;
             // add to database
             if ( cVVector.size() > 0 ) {
-                // Student: call bulkInsert to add the weatherEntries to the database here
                 ContentValues[] cvArray = new ContentValues[cVVector.size()];
                 cVVector.toArray(cvArray);
                 inserted = mContext.getContentResolver().bulkInsert(WeatherEntry.CONTENT_URI, cvArray);
             }
 
             Log.d(LOG_TAG, "FetchWeatherTask Complete. " + inserted + " Inserted");
-
 
         } catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
@@ -327,18 +317,15 @@ public class FetchWeatherTask extends AsyncTask<String, Void, Void> {
                 return null;
             }
             forecastJsonStr = buffer.toString();
-            getWeatherDataFromJson(forecastJsonStr,locationQuery);
+            getWeatherDataFromJson(forecastJsonStr, locationQuery);
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error ", e);
             // If the code didn't successfully get the weather data, there's no point in attempting
             // to parse it.
-
-        }catch(JSONException e){
-            Log.e(LOG_TAG,e.getMessage(),e);
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();
-        }
-
-        finally {
+        } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
             }
