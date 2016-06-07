@@ -35,7 +35,8 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             WeatherContract.WeatherEntry.COLUMN_HUMIDITY,
             WeatherContract.WeatherEntry.COLUMN_WIND_SPEED,
             WeatherContract.WeatherEntry.COLUMN_PRESSURE,
-            WeatherContract.WeatherEntry.COLUMN_DEGREES
+            WeatherContract.WeatherEntry.COLUMN_DEGREES,
+            WeatherContract.WeatherEntry.COLUMN_WEATHER_ID
     };
 
     private static final int COL_WEATHER_ID = 0 ;
@@ -47,10 +48,11 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private static final int COL_WIND_SPEED = 6;
     private static final int COL_PRESSURE = 7;
     private static final int COL_DEGREES = 8;
+    private static final int COL_WEATHER_CONDTION_ID = 9;
 
     private String mForecast;
 
-    private View mRootView;
+
 
     private static final String LOG_TAG = DetailFragment.class.getSimpleName();
 
@@ -77,21 +79,18 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        mRootView = inflater.inflate(R.layout.fragment_detail, container, false);
-        mWeekDayTextView =  (TextView) mRootView.findViewById(R.id.detail_week_day_textview);
-        mDateTextView = (TextView) mRootView.findViewById(R.id.detail_date_textview);
-        mMaxTempTextView = (TextView) mRootView.findViewById(R.id.detail_max_temp_textview);
-        mMinTempTextView = (TextView) mRootView.findViewById(R.id.detail_min_temp_textview);
-        mIconImageView = (ImageView) mRootView.findViewById(R.id.detail_icon);
-        mHumidityTextView = (TextView) mRootView.findViewById(R.id.detail_humidity_textview);
-        mWindTextView = (TextView) mRootView.findViewById(R.id.detail_wind_textview);
-        mPressureTextView = (TextView) mRootView.findViewById(R.id.detail_pressure_textview);
-        mDescTextView = (TextView) mRootView.findViewById(R.id.detail_desc_textview);
+        View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
+        mWeekDayTextView =  (TextView) rootView.findViewById(R.id.detail_week_day_textview);
+        mDateTextView = (TextView) rootView.findViewById(R.id.detail_date_textview);
+        mMaxTempTextView = (TextView) rootView.findViewById(R.id.detail_max_temp_textview);
+        mMinTempTextView = (TextView) rootView.findViewById(R.id.detail_min_temp_textview);
+        mIconImageView = (ImageView) rootView.findViewById(R.id.detail_icon);
+        mHumidityTextView = (TextView) rootView.findViewById(R.id.detail_humidity_textview);
+        mWindTextView = (TextView) rootView.findViewById(R.id.detail_wind_textview);
+        mPressureTextView = (TextView) rootView.findViewById(R.id.detail_pressure_textview);
+        mDescTextView = (TextView) rootView.findViewById(R.id.detail_desc_textview);
 
-
-
-
-        return mRootView;
+        return  rootView;
     }
 
     @Override
@@ -165,11 +164,16 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         int humidityFormant = R.string.format_humidity;
         String humidityString = String.format(getString(humidityFormant), humidityValue);
 
+
+        int imageId = data.getInt(COL_WEATHER_CONDTION_ID);
+        int imageResource = Utility.getArtResourceForWeatherCondition(imageId);
+
+
         mWeekDayTextView.setText(dayOfTheWeekString);
         mDateTextView.setText(dateString);
         mMaxTempTextView.setText(maxTemp);
         mMinTempTextView.setText(minTemp);
-        mIconImageView.setImageResource(R.drawable.ic_launcher);
+        mIconImageView.setImageResource(imageResource);
         mHumidityTextView.setText(humidityString);
         mWindTextView.setText(windString);
         mPressureTextView.setText(pressureFormant);
