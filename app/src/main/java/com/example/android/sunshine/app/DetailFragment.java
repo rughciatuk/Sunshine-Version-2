@@ -2,6 +2,7 @@ package com.example.android.sunshine.app;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -10,6 +11,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.ShareActionProvider;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -25,6 +27,8 @@ import com.example.android.sunshine.app.data.WeatherContract;
  * A placeholder fragment containing a simple view.
  */
 public class DetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+
+
 
     private static final String[] DETAIL_COLUMNS = {
             WeatherContract.WeatherEntry.TABLE_NAME + "." + WeatherContract.WeatherEntry._ID,
@@ -52,6 +56,8 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     private String mForecast;
 
+    public static final String DETAIL_URI = "uri";
+
 
 
     private static final String LOG_TAG = DetailFragment.class.getSimpleName();
@@ -59,6 +65,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private static final String FORECAST_SHARE_HASHTAG = " #SunshineApp";
 
     private ShareActionProvider mShareActionProvider;
+    private Uri mUri;
 
     private static final int DETAIL_LOADER = 1;
     private TextView mWeekDayTextView;
@@ -75,9 +82,18 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         setHasOptionsMenu(true);
     }
 
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        Bundle arguments = getArguments();
+        Log.e("Test Before", "onCreateView: ");
+        if(arguments != null){
+            mUri = arguments.getParcelable(DETAIL_URI);
+            Log.e("Test After", "onCreateView: " + mUri.toString() );
+        }
 
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
         mWeekDayTextView =  (TextView) rootView.findViewById(R.id.detail_week_day_textview);
@@ -90,13 +106,14 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         mPressureTextView = (TextView) rootView.findViewById(R.id.detail_pressure_textview);
         mDescTextView = (TextView) rootView.findViewById(R.id.detail_desc_textview);
 
+
         return  rootView;
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        getLoaderManager().initLoader(DETAIL_LOADER,savedInstanceState,this);
+        getLoaderManager().initLoader(DETAIL_LOADER,null,this);
     }
 
     @Override
@@ -127,21 +144,30 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         return shareIntent;
     }
 
+    void onLocationChanged(String newLocation){
+        Uri uri = mUri;
+        if(null != uri){
+            long date = WeatherContract.WeatherEntry.getDateFromUri(uri);
+            Uri updatedUri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(newLocation,date);
+            mUri = updatedUri;
+            getLoaderManager().restartLoader(DETAIL_LOADER,null,this);
+        }
+    }
+
+
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         // Sort order:  Ascending, by date.
+        if (null != mUri) {
 
-        Intent intent = getActivity().getIntent();
-        if(intent == null){
-            return null;
+            return new CursorLoader(getActivity(),
+                    mUri,
+                    DETAIL_COLUMNS,
+                    null,
+                    null,
+                    null);
         }
-
-        return new CursorLoader(getActivity(),
-                intent.getData(),
-                DETAIL_COLUMNS,
-                null,
-                null,
-                null);
+        return null;
     }
 
     @Override
