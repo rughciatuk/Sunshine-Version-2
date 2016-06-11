@@ -27,6 +27,7 @@ public class MainActivity extends ActionBarActivity implements ForecastFragment.
 
     private final String LOG_TAG = MainActivity.class.getSimpleName();
     public static final String DETAILFRAGMENT_TAG = "DFTAG";
+    public static final String USETOADYLAYOUT_KEY = "use_toady_key";
 
     private boolean mTwoPane;
     private String mLocation;
@@ -54,6 +55,9 @@ public class MainActivity extends ActionBarActivity implements ForecastFragment.
             mTwoPane = false;
         }
         Log.e(LOG_TAG, "mTwoPane = " + mTwoPane );
+
+        ForecastFragment forecastFragment = (ForecastFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_forecast);
+        forecastFragment.setUseTodayLayout(!mTwoPane);
     }
 
     @Override

@@ -72,6 +72,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     private ListView mListView;
     private static final String SCROLL_POSITIONS_KEY = "scroll_positions";
     private int mScrollPosition = ListView.INVALID_POSITION;
+    private boolean mUseTodayLayout;
 
     public interface Callback {
         /**
@@ -90,8 +91,17 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         if (savedInstanceState != null && savedInstanceState.containsKey(SCROLL_POSITIONS_KEY)){
             mScrollPosition = savedInstanceState.getInt(SCROLL_POSITIONS_KEY);
         }
+
         setHasOptionsMenu(true);
     }
+    public void setUseTodayLayout(boolean useTodayLayout){
+        mUseTodayLayout = useTodayLayout;
+        if(mForecastAdapter != null){
+            mForecastAdapter.setUseToadyLayout(mUseTodayLayout);
+        }
+
+    }
+
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
@@ -124,6 +134,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
                              Bundle savedInstanceState) {
         // The CursorAdapter will take data from our cursor and populate the ListView.
         mForecastAdapter = new ForecastAdapter(getActivity(), null, 0);
+        mForecastAdapter.setUseToadyLayout(mUseTodayLayout);
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
