@@ -69,6 +69,9 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     private static final int FORECAST_LOADER = 0;
     private ForecastAdapter mForecastAdapter;
     Callback mCallback;
+    private ListView mListView;
+    private static final String SCROLL_POSITIONS_KEY = "scroll_positions";
+    private int mScrollPosition = ListView.INVALID_POSITION;
 
     public interface Callback {
         /**
@@ -84,7 +87,18 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Add this line in order for this fragment to handle menu events.
+        if (savedInstanceState != null && savedInstanceState.containsKey(SCROLL_POSITIONS_KEY)){
+            mScrollPosition = savedInstanceState.getInt(SCROLL_POSITIONS_KEY);
+        }
         setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        if (mScrollPosition != ListView.INVALID_POSITION) {
+            outState.putInt(SCROLL_POSITIONS_KEY, mScrollPosition);
+        }
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -114,10 +128,10 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
         // Get a reference to the ListView, and attach this adapter to it.
-        ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
-        listView.setAdapter(mForecastAdapter);
+        mListView = (ListView) rootView.findViewById(R.id.listview_forecast);
+        mListView.setAdapter(mForecastAdapter);
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Cursor cursor = (Cursor) adapterView.getItemAtPosition(i);
@@ -127,6 +141,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
                     mCallback.onItemSelected(WeatherContract.WeatherEntry.buildWeatherLocationWithDate(locationSetting, cursor.getLong(COL_WEATHER_DATE)));
 
                 }
+                mScrollPosition = i;
             }
         });
 
@@ -182,6 +197,9 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
         mForecastAdapter.swapCursor(cursor);
+        if (mScrollPosition != ListView.INVALID_POSITION ){
+            mListView.smoothScrollToPosition(mScrollPosition);
+        }
     }
 
     @Override
