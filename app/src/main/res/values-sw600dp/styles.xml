@@ -5,7 +5,7 @@
         <!-- Customize your theme here. -->
     </style>
     <style name="ListSelctorStyle">
-
+        <item name="android:choiceMode">singleChoice</item>
     </style>
 
 </resources>
