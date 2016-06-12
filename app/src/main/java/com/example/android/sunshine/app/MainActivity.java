@@ -46,6 +46,7 @@ public class MainActivity extends ActionBarActivity implements ForecastFragment.
             // In two-pane mode, show the detail view in this activity by
             // adding or replacing the detail fragment using a
             // fragment transaction.
+            getSupportActionBar().setElevation(0f);
             if (savedInstanceState == null) {
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.weather_detail_container, new DetailFragment(), DETAILFRAGMENT_TAG)
@@ -53,6 +54,7 @@ public class MainActivity extends ActionBarActivity implements ForecastFragment.
             }
         } else {
             mTwoPane = false;
+
         }
         Log.e(LOG_TAG, "mTwoPane = " + mTwoPane );
 

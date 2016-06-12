@@ -5,16 +5,20 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="16dp"
+        >
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/detail_week_day_textview" />
+            android:id="@+id/detail_week_day_textview"
+            style="@style/sunshine_text_22_condensed"/>
         <TextView
+            android:layout_marginTop="8dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/detail_date_textview" />
+            android:id="@+id/detail_date_textview"
+            android:textSize="16sp"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -29,11 +33,19 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:id="@+id/detail_max_temp_textview"/>
+                    android:id="@+id/detail_max_temp_textview"
+                    android:fontFamily="sans-serif-light"
+                    android:textSize="96sp"
+                    android:textColor="@color/sunshine_black"
+                    android:layout_gravity="center_horizontal"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:id="@+id/detail_min_temp_textview"/>
+                    android:id="@+id/detail_min_temp_textview"
+                    android:fontFamily="sans-serif-light"
+                    android:layout_gravity="center_horizontal"
+                    android:textSize="48sp"
+                    android:textColor="#646464"/>
             </LinearLayout>
 
             <LinearLayout
@@ -49,7 +61,10 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:id="@+id/detail_desc_textview"/>
+                    android:id="@+id/detail_desc_textview"
+                    android:layout_gravity="center"
+                    style="@style/sunshine_text_22_condensed"
+                    android:textColor="@color/sunshine_gray"/>
 
 
 
@@ -60,15 +75,24 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/detail_humidity_textview"/>
+            android:id="@+id/detail_humidity_textview"
+            android:layout_marginBottom="4dp"
+            android:layout_marginTop="4dp"
+            android:fontFamily="sans-serif-light"
+            android:textAppearance="?android:textAppearanceLarge"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/detail_wind_textview"/>
+            android:id="@+id/detail_wind_textview"
+            android:layout_marginBottom="4dp"
+            android:fontFamily="sans-serif-light"
+            android:textAppearance="?android:textAppearanceLarge"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/detail_pressure_textview"/>
+            android:id="@+id/detail_pressure_textview"
+            android:fontFamily="sans-serif-light"
+            android:textAppearance="?android:textAppearanceLarge"/>
 
     </LinearLayout>
 </ScrollView>
