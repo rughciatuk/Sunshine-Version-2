@@ -81,8 +81,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         setHasOptionsMenu(true);
     }
 
-
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -173,7 +171,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         boolean isMetric = Utility.isMetric(getActivity());
 
         String dateString = Utility.getFormattedMonthDay(getActivity(),data.getLong(COL_WEATHER_DATE));
-        String dayOfTheWeekString = Utility.getFriendlyDayString(getActivity(),data.getLong(COL_WEATHER_DATE));
+        String dayOfTheWeekString = Utility.getDayName(getActivity(),data.getLong(COL_WEATHER_DATE));
         String short_desc = data.getString(COL_WEATHER_DESC);
         String maxTemp = Utility.formatTemperature(getActivity(),data.getLong(COL_WEATHER_MAX_TEMP),isMetric);
         String minTemp = Utility.formatTemperature(getActivity(),data.getLong(COL_WEATHER_MIN_TEMP),isMetric);
