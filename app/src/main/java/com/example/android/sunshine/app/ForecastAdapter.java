@@ -60,14 +60,18 @@ public class ForecastAdapter extends CursorAdapter {
         int imageResource = -1;
         int imageID = cursor.getInt(ForecastFragment.COL_WEATHER_CONDITION_ID);
         int viewType = getItemViewType(cursor.getPosition());
+        long date = cursor.getLong(ForecastFragment.COL_WEATHER_DATE);
+        String friendlyDateString = "";
 
         switch (viewType){
             case VIEW_TYPE_TODAY: {
                 imageResource = Utility.getArtResourceForWeatherCondition(imageID);
+                friendlyDateString = Utility.getFriendlyDayString(mContext,date);
                 break;
             }
             case VIEW_TYPE_FUTURE_DAY:{
                 imageResource = Utility.getIconResourceForWeatherCondition(imageID);
+                friendlyDateString = Utility.getDayName(mContext,date);
                 break;
             }
         }
@@ -75,8 +79,8 @@ public class ForecastAdapter extends CursorAdapter {
         viewHolder.iconView.setImageResource(imageResource);
 
 
-        long date = cursor.getLong(ForecastFragment.COL_WEATHER_DATE);
-        viewHolder.dateView.setText(Utility.getFriendlyDayString(mContext,date));
+
+        viewHolder.dateView.setText(friendlyDateString);
 
 
         String desc = cursor.getString(ForecastFragment.COL_WEATHER_DESC);
