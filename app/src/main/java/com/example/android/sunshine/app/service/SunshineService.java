@@ -1,8 +1,10 @@
 package com.example.android.sunshine.app.service;
 
 import android.app.IntentService;
+import android.content.BroadcastReceiver;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -23,14 +25,11 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Vector;
 
-/**
- * Created by Roi on 15/06/2016.
- */
+
 public class SunshineService extends IntentService {
 
     public static final String LOCATION_QUERY_EXTRA = "lqe";
     private final String LOG_TAG = SunshineService.class.getSimpleName();
-
     public SunshineService() {
         super("Sunshine");
     }
@@ -69,7 +68,7 @@ public class SunshineService extends IntentService {
             final String APPID_PARAM = "APPID";
 
             Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
-                    .appendQueryParameter(QUERY_PARAM, locationQuery)
+                    .appendQueryParameter(QUERY_PARAM, locationQuery+ ",USA")
                     .appendQueryParameter(FORMAT_PARAM, format)
                     .appendQueryParameter(UNITS_PARAM, units)
                     .appendQueryParameter(DAYS_PARAM, Integer.toString(numDays))
@@ -303,5 +302,14 @@ public class SunshineService extends IntentService {
         locationCursor.close();
         // Wait, that worked?  Yes!
         return locationId;
+    }
+
+    static public class AlarmReceiver extends BroadcastReceiver{
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Intent sendIntent = new Intent(context, SunshineService.class);
+            sendIntent.putExtra(SunshineService.LOCATION_QUERY_EXTRA,intent.getStringExtra(SunshineService.LOCATION_QUERY_EXTRA));
+            context.startService(sendIntent);
+        }
     }
 }
