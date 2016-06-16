@@ -2,18 +2,43 @@ package com.example.android.sunshine.app;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.preference.PreferenceManager;
 import android.text.format.Time;
+
+import com.example.android.sunshine.app.data.WeatherContract;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Utility {
+
+    private static final String[] latLongPro = new String[]{
+            WeatherContract.LocationEntry.COLUMN_COORD_LAT,
+            WeatherContract.LocationEntry.COLUMN_COORD_LONG
+    };
+
     public static String getPreferredLocation(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         return prefs.getString(context.getString(R.string.pref_location_key),
                 context.getString(R.string.pref_location_default));
+    }
+    public static double[] getLatLong(Context context){
+
+        double[] latLong = new double[2];
+
+        String location = getPreferredLocation(context);
+        Cursor cursor = context.getContentResolver().query(WeatherContract.LocationEntry.CONTENT_URI,
+                latLongPro,
+                WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING + "=?",
+                new String[]{location},
+                null);
+        if (cursor.moveToFirst()){
+            latLong[0] = cursor.getDouble(0);
+            latLong[1] = cursor.getDouble(1);
+        }
+        return latLong;
     }
 
     public static boolean isMetric(Context context) {
